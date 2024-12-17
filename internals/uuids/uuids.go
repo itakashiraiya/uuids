@@ -12,7 +12,7 @@ type uuid struct {
 
 func Test() {
 	a := new(uuid)
-	a.number = mask122bits()
+	a.number = MaxEntropyNum()
 	a.number.Xor(a.number, new(big.Int).Mul(big.NewInt(999999324189000006), big.NewInt(6983245123485468)))
 	fmt.Printf("hex: %x, num: %d, bin: %08b\n", a.number, a.number, a.number)
 	fmt.Println(a.toString())
@@ -21,7 +21,7 @@ func Test() {
 	fmt.Printf("hex: %x, num: %d, bin: %08b\n", b, b, b)
 }
 
-func getUuids(start *big.Int, length int) []string {
+func GetUuids(start *big.Int, length int) []string {
 	ret := make([]string, length)
 	for i := range ret {
 		id := uuid{new(big.Int).Add(start, big.NewInt(int64(i)))}
@@ -32,15 +32,15 @@ func getUuids(start *big.Int, length int) []string {
 
 func (u *uuid) toString() string {
 	ret := ""
-	ret += u.sliceBits(0, 32).Text(16)
+	ret += fmt.Sprintf("%08s", u.sliceBits(0, 32).Text(16))
 	ret += "-"
-	ret += u.sliceBits(32, 16).Text(16)
+	ret += fmt.Sprintf("%04s", u.sliceBits(32, 16).Text(16))
 	ret += "-4"
-	ret += u.sliceBits(48, 12).Text(16)
+	ret += fmt.Sprintf("%03s", u.sliceBits(48, 12).Text(16))
 	ret += "-"
-	ret += new(big.Int).Add(new(big.Int).Lsh(big.NewInt(2), 14), u.sliceBits(60, 14)).Text(16)
+	ret += fmt.Sprintf("%04s", new(big.Int).Add(new(big.Int).Lsh(big.NewInt(2), 14), u.sliceBits(60, 14)).Text(16))
 	ret += "-"
-	ret += u.sliceBits(74, 48).Text(16)
+	ret += fmt.Sprintf("%012s", u.sliceBits(74, 48).Text(16))
 	return ret
 }
 
@@ -65,13 +65,13 @@ func toUuid(sUuid string) uuid {
 	return ret
 }
 
-func mask122bits() *big.Int {
+func MaxEntropyNum() *big.Int {
 	return new(big.Int).Sub(new(big.Int).Exp(big.NewInt(2), big.NewInt(122), nil), big.NewInt(1))
 }
 
 func (u *uuid) sliceBits(start, length uint) (ret *big.Int) {
 	ret = new(big.Int).Lsh(u.number, start)
-	ret = ret.And(ret, mask122bits())
+	ret = ret.And(ret, MaxEntropyNum())
 	ret.Rsh(ret, 122-length)
 	return
 }

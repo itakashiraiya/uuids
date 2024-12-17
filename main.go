@@ -2,37 +2,26 @@ package main
 
 import (
 	"fmt"
+	"math/big"
+	"math/rand"
 	"os"
 	"time"
-	// "github.com/itakashiraiya/uuids/internals/uuids"
+
+	"github.com/itakashiraiya/uuids/internals/uuids"
 	"golang.org/x/term"
 )
 
-func main() {
-	// uuids.Test()
-	a := []string{
-		"test1.1",
-		"test1.2",
-		"test1.3",
-	}
+var display_height int
 
-	render(a)
-
-	time.Sleep(time.Second * 1)
-
-	a = []string{
-		"test2.1",
-		"test2.1",
-		"test2.1",
-	}
-
-	render(a)
-	for range a {
-		fmt.Println()
-	}
+func init() {
+	display_height = 10
 }
 
-func loop() {
+func main() {
+	start()
+}
+
+func start() {
 	oldState, err := term.MakeRaw(int(os.Stdin.Fd()))
 	if err != nil {
 		panic(err)
@@ -42,10 +31,22 @@ func loop() {
 	fmt.Print("\033[?25l")
 	defer fmt.Print("\033[?25h")
 	defer fmt.Print("\r\033[K")
+	defer fmt.Print("\033[999;1H")
+	loop()
 }
 
-func internal() {
+func loop() {
+	rand := rand.New(rand.NewSource(2))
+	for i := range display_height {
+		pos := new(big.Int).Rand(rand, new(big.Int).Add(uuids.MaxEntropyNum(), big.NewInt(1)))
+		internal(new(big.Int).Add(pos, big.NewInt(int64(i))))
+		time.Sleep(time.Second * 1)
+	}
+}
 
+func internal(pos *big.Int) {
+	uuids := uuids.GetUuids(pos, display_height)
+	render(uuids)
 }
 
 func render(outputs []string) {
