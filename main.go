@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"math/big"
-	"math/rand"
+	// "math/rand"
 	"os"
 	"time"
 
@@ -36,9 +36,10 @@ func start() {
 }
 
 func loop() {
-	rand := rand.New(rand.NewSource(2))
-	for i := range display_height {
-		pos := new(big.Int).Rand(rand, new(big.Int).Add(uuids.MaxEntropyNum(), big.NewInt(1)))
+	// rand := rand.New(rand.NewSource(4))
+	pos := big.NewInt(0)
+	for i := range 1 {
+		// pos := new(big.Int).Rand(rand, new(big.Int).Add(uuids.MaxEntropyNum(), big.NewInt(1)))
 		internal(new(big.Int).Add(pos, big.NewInt(int64(i))))
 		time.Sleep(time.Second * 1)
 	}
