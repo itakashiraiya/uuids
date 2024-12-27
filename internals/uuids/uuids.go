@@ -37,10 +37,18 @@ func Test() {
 func GetUuids(start *big.Int, length int) []string {
 	ret := make([]string, length)
 	for i := range ret {
-		id := uuid{new(big.Int).Add(start, big.NewInt(int64(i)))}
+		pos := new(big.Int).Add(start, big.NewInt(int64(i)))
+		if pos.Cmp(MaxEntropyNum()) > 0 {
+			ret[i] = strings.ReplaceAll(fmt.Sprintf("%031d: X", 0), "0", "x")
+			continue
+		}
+		id := uuid{pos}
 		id.shuffle()
-		ret[i] = id.toString()
+		ret[i] = fmt.Sprintf("%031s: %s", pos.Text(16), id.toString())
 	}
+	// for i, v := range ret {
+	// 	ret[i] = fmt.Sprintf("%031s: %s", new(big.Int).Add(start, big.NewInt(int64(i))).Text(16), v)
+	// }
 	return ret
 }
 

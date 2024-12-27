@@ -30,9 +30,7 @@ func start() {
 	defer term.Restore(int(os.Stdin.Fd()), oldState)
 
 	fmt.Print("\033[?25l")
-	defer fmt.Print("\033[?25h")
 	defer fmt.Print("\r\033[K")
-	defer fmt.Print("\033[999;1H")
 	loop()
 }
 
@@ -43,6 +41,8 @@ func loop() {
 	pos := big.NewInt(0)
 	usrString := ""
 	internal(usrString, pos)
+	defer fmt.Printf("\r\033[%dB\n", display_height)
+	fmt.Printf("%s", uuids.MaxEntropyNum().Text(16))
 	for {
 		// pos := new(big.Int).Rand(rand, new(big.Int).Add(uuids.MaxEntropyNum(), big.NewInt(1)))
 		input, err := input()
@@ -54,6 +54,8 @@ func loop() {
 			case "A":
 				if pos.Cmp(big.NewInt(0)) > 0 {
 					pos.Add(pos, big.NewInt(-1))
+				} else {
+					pos.Set(uuids.MaxEntropyNum())
 				}
 			case "B":
 				if pos.Cmp(uuids.MaxEntropyNum()) < 0 {
