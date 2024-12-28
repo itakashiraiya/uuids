@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
+	"time"
 
 	// "math/rand"
 	"os"
@@ -71,12 +72,22 @@ func loop() {
 	}
 }
 
+var lastEscape time.Time = time.Now()
+
 func input() (interface{}, error) {
 	var input [3]byte
 	n, err := os.Stdin.Read(input[:])
 	if err != nil {
 		panic(err)
 	}
+
+	if n == 1 && input[0] == 27 {
+		if time.Now().Sub(lastEscape).Milliseconds() <= 500 {
+			return inputCmd("exit"), nil
+		}
+		lastEscape = time.Now()
+	}
+
 	if n == 1 {
 		return input[0], nil
 	}
